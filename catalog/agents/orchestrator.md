@@ -15,7 +15,7 @@ El orquestador es el **punto de entrada único** para cualquier revisión. Nunca
 ## Agent Registry
 
 <!-- AUTO-GENERATED from manifest.yaml — do not edit this section manually.
-     Run `.github/workflows/update-orchestrator.yml` or push a change to manifest.yaml para regenerar. -->
+     Run `.github/workflows/update-orchestrator.yml` ou push a change to manifest.yaml para regenerar. -->
 
 | ID | Ruta | Estado |
 |---|---|---|
