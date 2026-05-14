@@ -1,0 +1,309 @@
+name: AI Orchestrator
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Descripción de la tarea a orquestar (opcional)"
+        required: false
+        default: "Review all changed files"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # ─── 1. Detect changed files and route to agents ───────────────────────────
+  route:
+    runs-on: ubuntu-latest
+    outputs:
+      agents_json: ${{ steps.route.outputs.agents_json }}
+      agents_list: ${{ steps.route.outputs.agents_list }}
+      has_visual:  ${{ steps.route.outputs.has_visual }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip --quiet
+          python -m pip install pyyaml --quiet
+
+      - name: Detect changed files and route to agents
+        id: route
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # ── Collect changed files ──────────────────────────────────────────
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+            CHANGED=$(git diff --name-only "$BASE" "$HEAD" 2>/dev/null || git diff --name-only HEAD~1 HEAD)
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          # ── Route to agents via Python ─────────────────────────────────────
+          python - << 'PY'
+          import os, re, json, yaml
+
+          changed = os.environ.get("CHANGED_FILES", "").strip().splitlines()
+
+          # Load active agents from manifest
+          with open("manifest.yaml", "r", encoding="utf-8") as f:
+              manifest = yaml.safe_load(f)
+
+          active_agents = {
+              c["id"].replace("agent-", "")
+              for c in manifest.get("components", [])
+              if c.get("type") == "agent" and c.get("status") == "active"
+              and c.get("id", "").startswith("agent-")
+              and c.get("id") != "agent-orchestrator"
+          }
+
+          # Routing rules — order matters (priority)
+          ROUTING = [
+              (r".*\.component\.(ts|html)$",              ["angular", "accessibility", "lint"]),
+              (r".*\.html$",                               ["html", "accessibility"]),
+              (r".*\.(scss|css)$",                         ["css", "accessibility"]),
+              (r".*(service|api|client|http).*\.ts$",     ["api", "lint"]),
+              (r".*\.(spec|test)\.ts$",                   ["qa"]),
+              (r".*(store|reducer|effects|selector).*\.ts$", ["state", "lint"]),
+              (r".*\.ts$",                                 ["lint", "rxjs"]),
+          ]
+
+          selected = set()
+          has_visual = False
+
+          for filepath in changed:
+              for pattern, agents in ROUTING:
+                  if re.search(pattern, filepath, re.IGNORECASE):
+                      for a in agents:
+                          if a in active_agents:
+                              selected.add(a)
+                      if "accessibility" in agents:
+                          has_visual = True
+
+          # lint always runs
+          if "lint" in active_agents:
+              selected.add("lint")
+
+          # ux always runs on a full PR review
+          if "ux" in active_agents:
+              selected.add("ux")
+
+          # Priority order
+          ORDER = ["lint", "angular", "api", "state", "rxjs", "html", "css", "accessibility", "qa", "ux"]
+          ordered = [a for a in ORDER if a in selected] + [a for a in selected if a not in ORDER]
+
+          print(f"::notice::Agents selected: {', '.join(ordered)}")
+
+          # Write outputs
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"agents_json={json.dumps(ordered)}\n")
+              out.write(f"agents_list={', '.join(ordered)}\n")
+              out.write(f"has_visual={'true' if has_visual else 'false'}\n")
+          PY
+        env:
+          CHANGED_FILES: ${{ steps.route.outputs._changed }}  # populated below
+
+      # Separate step so Python can read CHANGED_FILES from env
+      - name: Export changed files for routing script
+        id: changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+            CHANGED=$(git diff --name-only "$BASE" "$HEAD" 2>/dev/null || git diff --name-only HEAD~1 HEAD)
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+          fi
+          # Multiline safe output
+          {
+            echo "files<<EOF"
+            echo "$CHANGED"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Route changed files to agents
+        id: route-final
+        shell: bash
+        env:
+          CHANGED_FILES: ${{ steps.changed.outputs.files }}
+        run: |
+          set -euo pipefail
+          python - << 'PY'
+          import os, re, json, yaml
+
+          changed = os.environ.get("CHANGED_FILES", "").strip().splitlines()
+
+          with open("manifest.yaml", "r", encoding="utf-8") as f:
+              manifest = yaml.safe_load(f)
+
+          active_agents = {
+              c["id"].replace("agent-", "")
+              for c in manifest.get("components", [])
+              if c.get("type") == "agent"
+              and c.get("status") == "active"
+              and c.get("id", "").startswith("agent-")
+              and c.get("id") != "agent-orchestrator"
+          }
+
+          ROUTING = [
+              (r".*\.component\.(ts|html)$",              ["angular", "accessibility", "lint"]),
+              (r".*\.html$",                               ["html", "accessibility"]),
+              (r".*\.(scss|css)$",                         ["css", "accessibility"]),
+              (r".*(service|api|client|http).*\.ts$",     ["api", "lint"]),
+              (r".*\.(spec|test)\.ts$",                   ["qa"]),
+              (r".*(store|reducer|effects|selector).*\.ts$", ["state", "lint"]),
+              (r".*\.ts$",                                 ["lint", "rxjs"]),
+          ]
+
+          selected = set()
+          has_visual = False
+          file_agent_map = {}
+
+          for filepath in changed:
+              matched = []
+              for pattern, agents in ROUTING:
+                  if re.search(pattern, filepath, re.IGNORECASE):
+                      for a in agents:
+                          if a in active_agents:
+                              selected.add(a)
+                              matched.append(a)
+                      if "accessibility" in agents:
+                          has_visual = True
+              if matched:
+                  file_agent_map[filepath] = list(dict.fromkeys(matched))
+
+          if "lint" in active_agents:
+              selected.add("lint")
+          if "ux" in active_agents:
+              selected.add("ux")
+
+          ORDER = ["lint", "angular", "api", "state", "rxjs", "html", "css", "accessibility", "qa", "ux"]
+          ordered = [a for a in ORDER if a in selected] + [a for a in selected if a not in ORDER]
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"agents_json={json.dumps(ordered)}\n")
+              out.write(f"agents_list={', '.join(ordered)}\n")
+              out.write(f"has_visual={'true' if has_visual else 'false'}\n")
+              out.write(f"file_map={json.dumps(file_agent_map)}\n")
+          PY
+
+  # ─── 2. Post PR comment with orchestration plan ────────────────────────────
+  comment:
+    needs: route
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Post orchestrator comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const agentsList = '${{ needs.route.outputs.agents_list }}';
+            const hasVisual  = '${{ needs.route.outputs.has_visual }}' === 'true';
+            const agents     = agentsList ? agentsList.split(', ').filter(Boolean) : [];
+
+            const AGENT_DOCS = {
+              lint:          'catalog/agents/lint.md',
+              angular:       'catalog/agents/angular.md',
+              api:           'catalog/agents/api.md',
+              state:         'catalog/agents/state.md',
+              rxjs:          'catalog/agents/rxjs.md',
+              html:          'catalog/agents/html.md',
+              css:           'catalog/agents/css.md',
+              accessibility: 'catalog/agents/accessibility.md',
+              qa:            'catalog/agents/qa.md',
+              ux:            'catalog/agents/ux.md',
+            };
+
+            const SEVERITY_NOTE = hasVisual
+              ? '\n> ⚠️ **Nota:** Este PR contiene cambios visuales. El agente `accessibility` es **obligatorio** (WCAG 2.1 AA). Los hallazgos `critical` o `serious` **bloquean el merge**.'
+              : '';
+
+            const rows = agents.map(a => {
+              const doc = AGENT_DOCS[a] ?? `catalog/agents/${a}.md`;
+              const isAccessibility = a === 'accessibility';
+              const badge = isAccessibility ? ' 🔒 obligatorio' : '';
+              return `| \`${a}\`${badge} | [\`${doc}\`](${doc}) |`;
+            }).join('\n');
+
+            const body = [
+              '## 🤖 AI Orchestrator — Plan de revisión',
+              '',
+              `Ficheros analizados: se han seleccionado **${agents.length} agente(s)** del catálogo para este PR.`,
+              SEVERITY_NOTE,
+              '',
+              '| Agente | Definición |',
+              '|---|---|',
+              rows,
+              '',
+              '### Orden de ejecución recomendado',
+              agents.map((a, i) => `${i + 1}. \`${a}\``).join('\n'),
+              '',
+              '---',
+              '_Generado automáticamente por [AI Orchestrator](.github/workflows/orchestrator.yml) · [Ver definición del orquestador](catalog/agents/orchestrator.md)_',
+            ].join('\n');
+
+            // Delete previous orchestrator comment if exists
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const prev = comments.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('AI Orchestrator')
+            );
+            if (prev) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                comment_id: prev.id,
+              });
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+  # ─── 3. Accessibility gate (blocks merge on visual changes) ────────────────
+  accessibility-gate:
+    needs: route
+    if: needs.route.outputs.has_visual == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce accessibility agent is listed
+        shell: bash
+        run: |
+          set -euo pipefail
+          AGENTS='${{ needs.route.outputs.agents_list }}'
+          if echo "$AGENTS" | grep -q "accessibility"; then
+            echo "✅ Accessibility agent is included in the review plan."
+          else
+            echo "❌ This PR contains visual changes but the accessibility agent was not selected."
+            echo "   Please run the accessibility review (catalog/agents/accessibility.md) before merging."
+            exit 1
+          fi

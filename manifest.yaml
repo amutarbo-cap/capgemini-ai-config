@@ -1,0 +1,73 @@
+version: 1
+updated_at: "2026-05-14"
+components:
+  - id: agent-orchestrator
+    type: agent
+    path: catalog/agents/orchestrator.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-accessibility
+    type: agent
+    path: catalog/agents/accessibility.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-angular
+    type: agent
+    path: catalog/agents/angular.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-api
+    type: agent
+    path: catalog/agents/api.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-css
+    type: agent
+    path: catalog/agents/css.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-html
+    type: agent
+    path: catalog/agents/html.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-lint
+    type: agent
+    path: catalog/agents/lint.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-qa
+    type: agent
+    path: catalog/agents/qa.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-rxjs
+    type: agent
+    path: catalog/agents/rxjs.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-state
+    type: agent
+    path: catalog/agents/state.md
+    owner: capgemini-ai
+    status: active
+  - id: agent-ux
+    type: agent
+    path: catalog/agents/ux.md
+    owner: capgemini-ai
+    status: active
+  - id: skill-writing-rfc
+    type: skill
+    path: catalog/skills/writing-rfc.md
+    owner: capgemini-ai
+    status: active
+  - id: sdd-ai-governance
+    type: sdd
+    path: catalog/sdd/ai-governance.md
+    owner: capgemini-ai
+    status: draft
+  - id: mcp-stdio-template
+    type: mcp
+    path: catalog/mcps/stdio-template.md
+    owner: capgemini-ai
+    status: active

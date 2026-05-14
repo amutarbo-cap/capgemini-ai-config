@@ -1,0 +1,88 @@
+name: Sync AI Config
+
+description: Sync selected folders from central AI config repo into current repository.
+
+inputs:
+  source_repository:
+    description: Owner/repo containing central AI config.
+    required: false
+    default: amutarbo-cap/capgemini-ai-config
+  ref:
+    description: Branch, tag or SHA to sync from.
+    required: false
+    default: main
+  source_token:
+    description: Token to read source repository when private.
+    required: false
+    default: ""
+  paths:
+    description: Comma separated paths to copy from source repository.
+    required: false
+    default: catalog/agents,catalog/skills,catalog/sdd,catalog/mcps,manifest.yaml
+  target_root:
+    description: Destination root in current repository.
+    required: false
+    default: .ai-config
+  clean_target:
+    description: If true, delete destination before copying.
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout source config repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.source_repository }}
+        ref: ${{ inputs.ref }}
+        path: .central-ai-config
+        token: ${{ inputs.source_token != '' && inputs.source_token || github.token }}
+
+    - name: Sync files
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        src_dir=".central-ai-config"
+        target_root="${{ inputs.target_root }}"
+        clean_target="${{ inputs.clean_target }}"
+
+        mkdir -p "$target_root"
+
+        if [ "$clean_target" = "true" ]; then
+          find "$target_root" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+        fi
+
+        IFS=',' read -ra requested_paths <<< "${{ inputs.paths }}"
+
+        for p in "${requested_paths[@]}"; do
+          path_trimmed="$(echo "$p" | xargs)"
+
+          if [ -z "$path_trimmed" ]; then
+            continue
+          fi
+
+          source_path="$src_dir/$path_trimmed"
+          target_path="$target_root/$path_trimmed"
+
+          if [ ! -e "$source_path" ]; then
+            echo "Path not found in source repo: $path_trimmed"
+            exit 1
+          fi
+
+          mkdir -p "$(dirname "$target_path")"
+
+          if [ -d "$source_path" ]; then
+            rm -rf "$target_path"
+            cp -R "$source_path" "$target_path"
+          else
+            cp "$source_path" "$target_path"
+          fi
+
+          echo "Synced: $path_trimmed"
+        done
+
+    - name: Cleanup temp checkout
+      shell: bash
+      run: rm -rf .central-ai-config
