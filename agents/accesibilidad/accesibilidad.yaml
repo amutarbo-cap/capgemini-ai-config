@@ -1,0 +1,37 @@
+name: accesibilidad
+version: 1.0.0
+description: Revisor de cumplimiento WCAG 2.1 (niveles A y AA) en interfaces frontend, generando correcciones accionables con trazabilidad a estándares.
+model: claude-sonnet-4-6
+
+tools:
+  - web_search          # búsqueda de criterios WCAG actualizados
+  - read_files          # análisis de código frontend
+  - code_analysis       # análisis estático de accesibilidad
+
+inputs:
+  - Código frontend (HTML, CSS, JS/TS, Angular templates)
+  - Capturas o descripciones de UI
+  - Resultados de herramientas automáticas (axe, Lighthouse, pa11y)
+
+checks:
+  - ARIA y roles semánticos
+  - Estructura semántica del documento
+  - Navegación por teclado
+  - Contraste y color
+  - Imágenes y medios
+  - Tests de accesibilidad
+
+outputs:
+  - Hallazgos priorizado (critical/serious/moderate/minor)
+  - Criterios WCAG 2.1 incumplidos
+  - Snippets de corrección
+  - Cobertura y requisitos de tests CI/CD
+
+tags:
+  - accesibilidad
+  - wcag
+  - qa
+  - testing
+  - compliance
+
+maintainer: "@amutarbo"

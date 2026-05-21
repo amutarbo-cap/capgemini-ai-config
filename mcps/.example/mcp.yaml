@@ -1,0 +1,13 @@
+# Plantilla de MCP — copiar a mcps/NOMBRE-MCP/mcp.yaml
+name: nombre-mcp
+version: 1.0.0
+description: Qué servicio integra y para qué
+url: https://mcp.servicio.com/sse
+auth:
+  type: oauth2  # oauth2 | api_key | none
+  scopes:
+    - scope1
+    - scope2
+tags:
+  - integracion
+maintainer: "@tu-usuario"
