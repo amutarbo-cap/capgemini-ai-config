@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// Instalar yaml si no está disponible: npm install js-yaml
-// En el workflow añadir: run: npm install js-yaml
 const yaml = require('js-yaml');
 
 const CATEGORIES = ['agents', 'skills', 'mcps', 'resources'];

@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(Remove-Item -Path \"c:\\\\Users\\\\amutarbo\\\\Desktop\\\\Proyectos\\\\capgemini-ai-config\\\\agents\\\\accessibility.md\" -Force)"
+      "Bash(Remove-Item -Path \"c:\\\\Users\\\\amutarbo\\\\Desktop\\\\Proyectos\\\\capgemini-ai-config\\\\agents\\\\accessibility.md\" -Force)",
+      "Bash(node .github/scripts/generate-catalog.js)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'chore: add node_modules to gitignore *)",
+      "Bash(git commit -m 'chore: add package dependencies for catalog generation *)"
     ]
   }
 }
