@@ -38,6 +38,7 @@ function readSkillFiles() {
         return {
           ...data,
           content: body.trim(),
+          rawContent: fileContent,
           path: `skills/${dir}`,
           hasReadme: files.includes('README.md'),
         };
