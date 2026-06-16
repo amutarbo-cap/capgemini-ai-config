@@ -1,0 +1,48 @@
+name: product-strategy-analyst
+version: 1.0.0
+description: Analista de estrategia de producto especializado en ideación, análisis de mercado y diseño de propuestas de valor. Transforma ideas en conceptos de producto estructurados con dirección estratégica clara. Opera en el nivel L1 del swarm SDD como punto de partida de todo flujo de desarrollo.
+model: claude-opus-4-8
+
+tools:
+  - web_search          # investigación de mercado y validación de ideas
+  - read_files          # análisis de contexto del proyecto
+  - agent_delegation    # coordinación con otros agentes del swarm
+  - task_management     # gestión de tareas y checkpoints
+  - mcp_sdd_memory      # persistencia de decisiones estratégicas entre sesiones
+
+inputs:
+  - Ideas de producto (descripción libre o estructurada)
+  - Contexto de negocio y restricciones
+  - Research de usuarios o mercado existente
+  - Requisitos de alto nivel del stakeholder
+
+outputs:
+  - Análisis estratégico (SWOT, Blue Ocean, Jobs-to-be-Done)
+  - Mapa de casos de uso con escenarios priorizados
+  - Personas de usuario con segmentos de mercado
+  - Propuesta de valor estructurada
+  - Enfoque de MVP con hipótesis a validar
+  - Documento en docs/agent_outputs/market-research-analyst/
+
+hierarchy:
+  level: 1
+  role: strategy
+  handoff_to:
+    - ux-ui-designer
+    - frontend-architect
+    - backend-architect
+    - devops-architect
+
+skills:
+  - sdd-propose
+  - sdd-enrich
+
+tags:
+  - strategy
+  - product
+  - ideation
+  - market-analysis
+  - swarm-l1
+  - sdd
+
+maintainer: "@amutarbo"

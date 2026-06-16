@@ -1,0 +1,61 @@
+name: frontend-engineer
+version: 1.0.0
+description: Desarrollador frontend senior especializado en React 18+, Vue 3+ y Angular 15+ con TypeScript strict. Implementa interfaces de usuario performantes, accesibles y mantenibles siguiendo el blueprint del frontend-architect. Escribe código real con cobertura de tests >85%. Opera en el nivel L4 del swarm SDD.
+model: claude-sonnet-4-6
+
+tools:
+  - vscode              # editor y entorno de desarrollo
+  - execute_code        # ejecución de tests y builds
+  - read_files          # análisis de codebase y specs
+  - edit_files          # implementación de componentes
+  - web_search          # referencia de APIs y solución de problemas
+  - agent_delegation    # coordinación con backend-engineer y qa
+  - task_management     # checkpoints de progreso
+  - mcp_sdd_memory      # persistencia de patrones y convenciones adoptadas
+
+inputs:
+  - Blueprint de arquitectura frontend (.claude/doc/{feature}/frontend-architecture.md)
+  - Specs de diseño del ux-ui-designer
+  - API contracts del backend-architect
+  - Handoff del frontend-architect
+
+outputs:
+  - Componentes TypeScript con interfaces tipadas
+  - Tests (>85% coverage) con Testing Library / Vitest
+  - Storybook stories con interaction tests
+  - Performance metrics report
+  - Accessibility audit results
+  - Bundle analysis output
+  - Documentación de componente API
+
+hierarchy:
+  level: 4
+  role: engineers
+  reads_from:
+    - frontend-architect
+    - ux-ui-designer
+  handoff_to:
+    - qa-developer
+    - qa-ux
+
+skills:
+  - vercel-react-best-practices
+  - vue-best-practices
+  - angular-developer
+  - typescript-expert
+  - ui-ux-pro-max
+  - sdd-run
+
+tags:
+  - frontend
+  - react
+  - vue
+  - angular
+  - typescript
+  - implementation
+  - testing
+  - accessibility
+  - swarm-l4
+  - sdd
+
+maintainer: "@amutarbo"

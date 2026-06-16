@@ -1,0 +1,52 @@
+name: ux-ui-designer
+version: 1.0.0
+description: Diseñador UX/UI senior especializado en diseño centrado en el usuario, arquitectura de información e interacción. Traduce requisitos de producto en especificaciones de diseño implementables. Opera en el nivel L2 del swarm SDD, recibiendo el handoff estratégico y produciendo blueprints para el frontend-architect.
+model: claude-opus-4-8
+
+tools:
+  - read_files          # análisis de requisitos y context del proyecto
+  - edit_files          # generación de specs de diseño
+  - web_search          # referencia de patrones y tendencias UX
+  - agent_delegation    # coordinación con otros agentes
+  - task_management     # gestión de tareas y checkpoints
+  - mcp_sdd_memory      # persistencia de decisiones de diseño entre sesiones
+
+inputs:
+  - Requisitos de producto (propuesta del L1 strategy)
+  - User research y personas de usuario
+  - Design system tokens existentes
+  - Restricciones de accesibilidad (WCAG 2.1 AA mínimo)
+  - Capturas o descripciones de UI existente
+
+outputs:
+  - User journey maps con happy path y error paths
+  - Screen specs por pantalla (componentes, jerarquía, layout)
+  - Tabla de estados de interacción por componente
+  - Design tokens referenciados o propuestos
+  - Open questions para revisión de producto
+  - Documento en .claude/doc/{feature_name}/ux-design.md
+
+hierarchy:
+  level: 2
+  role: ux-accessibility
+  reads_from:
+    - product-strategy-analyst
+  handoff_to:
+    - frontend-architect
+
+skills:
+  - ui-ux-pro-max
+  - sdd-propose
+  - sdd-enrich
+
+tags:
+  - ux
+  - ui
+  - design
+  - interaction-design
+  - information-architecture
+  - accessibility
+  - swarm-l2
+  - sdd
+
+maintainer: "@amutarbo"

@@ -1,0 +1,54 @@
+name: qa-ux
+version: 1.0.0
+description: Ingeniero QA senior especializado en calidad UX. Combina metodología QA rigurosa con sensibilidad UX, validando que las implementaciones coincidan con el diseño, que los user journeys sean fluidos y que cada estado de interacción esté correctamente manejado. Produce planes de test UX con formato GIVEN/WHEN/THEN. Opera en el nivel L5 del swarm SDD.
+model: claude-sonnet-4-6
+
+tools:
+  - vscode              # editor para specs de test
+  - read_files          # análisis de diseño specs e implementación
+  - web_search          # referencia de estándares UX y accesibilidad
+  - agent_delegation    # coordinación con frontend-engineer para fixes UX
+  - task_management     # gestión del plan de testing UX
+  - mcp_sdd_memory      # persistencia de bugs UX encontrados
+
+inputs:
+  - Design specs del ux-ui-designer (.claude/doc/{feature}/ux-design.md)
+  - User journey maps
+  - UI implementada (capturas o acceso al entorno)
+  - Handoff del frontend-engineer
+
+outputs:
+  - UX test plan (.claude/doc/{feature_name}/ux-test-plan.md)
+  - Test cases por escenario (ID, Scenario, Steps, Expected, Actual, Status)
+  - Design fidelity checklist por componente
+  - Compatibility matrix (Browser × Device)
+  - Risk areas priorizadas
+  - Bug reports UX (blocking / degrading / cosmetic)
+
+hierarchy:
+  level: 5
+  role: qa
+  reads_from:
+    - frontend-engineer
+    - ux-ui-designer
+  handoff_to:
+    - frontend-engineer    # para fixes de UX
+
+skills:
+  - qa-test-planner
+  - accessibility-a11y
+  - ui-ux-pro-max
+  - sdd-done
+
+tags:
+  - qa
+  - ux
+  - ui-testing
+  - accessibility
+  - usability
+  - cross-browser
+  - design-fidelity
+  - swarm-l5
+  - sdd
+
+maintainer: "@amutarbo"
