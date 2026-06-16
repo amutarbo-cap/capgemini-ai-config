@@ -1,12 +1,19 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-06-16T15:03:12.835Z",
+  "generatedAt": "2026-06-16T16:45:22.386Z",
   "agents": [
     {
       "name": "accesibilidad",
       "version": "1.0.0",
       "description": "Revisor de cumplimiento WCAG 2.1 (niveles A y AA) en interfaces frontend, generando correcciones accionables con trazabilidad a estándares.",
       "model": "claude-sonnet-4-6",
+      "hierarchy": {
+        "level": 2,
+        "role": "ux-accessibility"
+      },
+      "skills": [
+        "accessibility-a11y"
+      ],
       "tools": [
         "web_search",
         "read_files",
@@ -26,7 +33,7 @@
         "Tests de accesibilidad"
       ],
       "outputs": [
-        "Hallazgos priorizado (critical/serious/moderate/minor)",
+        "Hallazgos priorizados (critical/serious/moderate/minor)",
         "Criterios WCAG 2.1 incumplidos",
         "Snippets de corrección",
         "Cobertura y requisitos de tests CI/CD"
