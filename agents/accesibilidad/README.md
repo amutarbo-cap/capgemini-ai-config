@@ -1,46 +1,33 @@
-# Accesibilidad
+# accesibilidad
 
-## Qué hace
-Revisa el cumplimiento de **WCAG 2.1** (niveles A y AA) en interfaces frontend, priorizando hallazgos por severidad y generando correcciones accionables con evidencia trazable a criterios del estándar.
+Agente revisor de cumplimiento WCAG 2.1 para interfaces frontend.
 
-## Cuándo usarlo
-- Code review de componentes frontend
-- Auditorías de conformidad WCAG 2.1 en proyectos Capgemini
-- Corrección de violaciones detectadas por axe, Lighthouse o pa11y
-- Setup de tests de accesibilidad en CI/CD
-- Preparación para auditorías de compliance
+## Cambios respecto al original
 
-## Cómo configurarlo
-1. Instalar herramientas automáticas:
-   ```bash
-   npm install --save-dev @axe-core/angular jest-axe @axe-core/cypress
-   ```
+El YAML original en el repo central carecía de los campos `hierarchy` y `skills`,
+y no tenía `prompt.md`. Este directorio contiene la versión completa lista para subir.
 
-2. Agregar test mínimo en tu suite (Angular):
-   ```typescript
-   import { axe, toHaveNoViolations } from 'jest-axe';
-   expect.extend(toHaveNoViolations);
-   
-   it('should have no accessibility violations', async () => {
-     const { container } = await render(MyComponent);
-     const results = await axe(container);
-     expect(results).toHaveNoViolations();
-   });
-   ```
+### Añadido en `accesibilidad.yaml`
 
-3. Ejecutar en CI/CD:
-   ```yaml
-   - run: npm run test:a11y
-   ```
+```yaml
+hierarchy:
+  level: 2
+  role: ux-accessibility
 
-## Ejemplo de uso
-**Entrada:** código frontend con componentes que fallan en axe (aria-label faltante, contraste insuficiente)
+skills:
+  - accessibility-a11y
+```
 
-**Salida:** 
-- Lista de hallazgos priorizado (critical/serious/moderate/minor)
-- Criterio WCAG 2.1 incumplido para cada uno
-- Snippet de corrección
-- Requerimientos de cobertura en tests
+- `hierarchy` — necesario para que el transform script lo asigne al nivel 2 (UX & Accessibility)
+  junto a `ux-ui-designer` en el swarm
+- `skills` — skill de accesibilidad que se instala automáticamente con el agente
 
-## Changelog
-- v1.0.0 — versión inicial
+### Añadido `prompt.md`
+
+System prompt completo del agente. Sin este archivo el transform script lo omite
+con un warning y el agente no aparece en el catálogo del kit.
+
+## Cómo subir al repo central
+
+Copiar los tres archivos a `agents/accesibilidad/` en `capgemini-ai-config` y hacer push.
+El próximo release del kit lo incluirá automáticamente en `docs/agents-catalog.json`.
