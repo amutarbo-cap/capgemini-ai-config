@@ -1,0 +1,11 @@
+name: jira-onprem-mcp
+version: 1.0.0
+description: Servidor MCP para Jira on-premise con autenticacion por cookies
+url: https://github.com/amutarbo-cap/capgemini-ai-config/tree/main/mcps/mcp-jira-onprem-main
+auth:
+  type: api_key
+tags:
+  - jira
+  - onprem
+  - mcp
+maintainer: "@amutarbo"

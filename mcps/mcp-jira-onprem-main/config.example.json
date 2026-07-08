@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "jira-onprem": {
+      "command": "node",
+      "args": ["/ruta/absoluta/a/jira-onprem-mcp/dist/index.js"],
+      "env": {
+        "JIRA_BASE_URL": "https://jira.your-company.com",
+        "JIRA_JSESSIONID": "tu_jsessionid_aqui",
+        "JIRA_XSRF_TOKEN": "tu_xsrf_token_aqui",
+        "JIRA_REMEMBER_ME_COOKIE": "tu_remember_me_cookie_aqui"
+      }
+    }
+  }
+}
