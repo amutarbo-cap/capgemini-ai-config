@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-06-16T16:45:22.386Z",
+  "generatedAt": "2026-07-08T16:03:05.525Z",
   "agents": [
     {
       "name": "accesibilidad",
@@ -813,6 +813,24 @@
       "hasReadme": false
     }
   ],
-  "mcps": [],
+  "mcps": [
+    {
+      "name": "jira-onprem-mcp",
+      "version": "1.0.0",
+      "description": "Servidor MCP para Jira on-premise con autenticacion por cookies",
+      "url": "https://github.com/amutarbo-cap/capgemini-ai-config/tree/main/mcps/mcp-jira-onprem-main",
+      "auth": {
+        "type": "api_key"
+      },
+      "tags": [
+        "jira",
+        "onprem",
+        "mcp"
+      ],
+      "maintainer": "@amutarbo",
+      "path": "mcps/mcp-jira-onprem-main",
+      "hasReadme": true
+    }
+  ],
   "resources": []
 }
